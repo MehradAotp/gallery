@@ -40,12 +40,4 @@ export class UsersService {
     }
     return user;
   }
-
-  async validateUser(username: string, password: string): Promise<User | null> {
-    const user = await this.findOne(username);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      return user;
-    }
-    return null;
-  }
 }

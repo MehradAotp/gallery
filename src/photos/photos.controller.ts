@@ -3,39 +3,26 @@ import {
   Controller,
   Post,
   UploadedFile,
-  UseInterceptors,
   Request,
   Get,
-  UseGuards,
   Param,
 } from '@nestjs/common';
 import { PhotosService } from './photos.service';
-import { Roles } from 'src/auth/roles.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { CreatePhotoDto } from './dto/createPhotoDto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/roles.guard';
+import { ApiTags } from '@nestjs/swagger';
+import { UploadPicture } from 'decorators/photo/decorator.uploadPhotos';
+import { myPhotos } from 'decorators/photo/decorator.myPhotos';
+import { allPhotos } from 'decorators/photo/decorator.allPhotos';
+import { pendingPhotos } from 'decorators/photo/decorator.pendingPhotos';
+import { rejectPhoto } from 'decorators/photo/decorator.rejectPhoto';
+import { approvePhoto } from 'decorators/photo/decorator.approvePhoto';
+@ApiTags('Photos')
 @Controller('photos')
 export class PhotosController {
   constructor(private readonly photoService: PhotosService) {}
-
+  //{Post} upload
   @Post('upload')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('user')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, uniqueSuffix + extname(file.originalname));
-        },
-      }),
-    }),
-  )
+  @UploadPicture()
   async uploadPhoto(
     @UploadedFile() file: Express.Multer.File,
     @Body() createPhotoDto: CreatePhotoDto,
@@ -44,36 +31,34 @@ export class PhotosController {
     const filename = file.filename;
     return this.photoService.createPhoto(createPhotoDto, req.user.id, filename);
   }
-
+  //{GET} my-photos
   @Get('my-photos')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('user')
+  @myPhotos()
   async getUserPhotos(@Request() req: any) {
     return this.photoService.getUserPhotos(req.user.id);
   }
 
+  //{GET} all photos
   @Get()
+  @allPhotos()
   async allApprovedPhoto() {
     return this.photoService.approvedPhoto();
   }
-
+  //{GET} pending
   @Get('pending')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @pendingPhotos()
   async getPendingPhotos() {
     return this.photoService.findPendingPhotos();
   }
-
+  //{Post} approve with id
   @Post('approve/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @approvePhoto()
   async approvePhoto(@Param('id') photoId: string) {
     return this.photoService.approvePhoto(photoId);
   }
-
+  //{Post} reject with id
   @Post('reject/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @rejectPhoto()
   async rejectPhoto(@Param('id') photoId: string) {
     return this.photoService.rejectPhoto(photoId);
   }

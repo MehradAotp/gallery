@@ -22,7 +22,10 @@ export class PhotosService {
   }
 
   async approvedPhoto(): Promise<Photo[]> {
-    return this.photoModel.find({ status: 'approved' }).populate('uploadedBy');
+    return this.photoModel.find({ status: 'approved' }).populate({
+      path: 'uploadedBy',
+      select: '-password', // حذف فیلد password از خروجی
+    });
   }
 
   async getUserPhotos(userId: string): Promise<Photo[]> {
@@ -30,7 +33,10 @@ export class PhotosService {
   }
 
   async findPendingPhotos(): Promise<Photo[]> {
-    return this.photoModel.find({ status: 'pending' }).populate('uploadedBy');
+    return this.photoModel.find({ status: 'pending' }).populate({
+      path: 'uploadedBy',
+      select: '-password', // حذف فیلد password از خروجی
+    });
   }
 
   async approvePhoto(photoId: string): Promise<Photo> {

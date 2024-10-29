@@ -6,44 +6,45 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/createCategoryDto';
-import { Roles } from 'src/auth/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateCategoryDto } from './dto/updateCategoryDto';
-import { RolesGuard } from 'src/auth/roles.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+import { createCategory } from 'decorators/category/decoraator.createCategory';
+import { getAllCategories } from 'decorators/category/decorator.getAllCategories';
+import { updateCategory } from 'decorators/category/decorator.updateCategory';
+import { deleteCategory } from 'decorators/category/decorator.deleteCategory';
+
+@ApiTags('Category')
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
-
+  //Post
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @createCategory()
   async CreateCategory(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.createCategory(createCategoryDto);
   }
-
+  //Get
   @Get()
+  @getAllCategories()
   async getAllCategories() {
     return this.categoryService.allCategory();
   }
-
+  //Patch
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @updateCategory()
   async updateCategory(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     return this.categoryService.updateCategory(id, updateCategoryDto);
   }
-
+  //Delete
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @deleteCategory()
   async deleteCategory(@Param('id') id: string) {
     return this.categoryService.deleteCategory(id);
   }
