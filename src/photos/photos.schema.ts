@@ -11,7 +11,7 @@ export class Photo extends Document {
   @Prop({ required: true })
   title: string;
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Category.name }],
     required: true,
   })
   categories: Category[];
@@ -20,10 +20,14 @@ export class Photo extends Document {
   @Prop({
     required: true,
     enum: StatusEnum,
-    default: 'pending',
+    default: StatusEnum.PENDING,
   })
   status: StatusEnum;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-  uploadedBy: User;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
+    required: true,
+  })
+  uploadedBy: mongoose.Schema.Types.ObjectId;
 }
 export const PhotoSchema = SchemaFactory.createForClass(Photo);

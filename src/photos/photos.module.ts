@@ -5,13 +5,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Photo, PhotoSchema } from './photos.schema';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { Category, CategorySchema } from 'src/category/category.schema';
+import { User, UserSchema } from 'src/users/users.schema';
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([
-      { name: Photo.name, schema: PhotoSchema },
       { name: Category.name, schema: CategorySchema },
     ]),
+    MongooseModule.forFeature([{ name: Photo.name, schema: PhotoSchema }]),
     NestjsFormDataModule,
   ],
   controllers: [PhotosController],

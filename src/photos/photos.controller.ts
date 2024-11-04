@@ -1,25 +1,31 @@
-import { Body, Controller, Post, Request, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  Get,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { PhotosService } from './photos.service';
 import { CreatePhotoDto } from './dto/createPhotoDto';
-import { ApiTags } from '@nestjs/swagger';
-import { UploadPicture } from 'decorators/photo/decorator.uploadPhotos';
-import { myPhotos } from 'decorators/photo/decorator.myPhotos';
-import { allPhotos } from 'decorators/photo/decorator.allPhotos';
-import { pendingPhotos } from 'decorators/photo/decorator.pendingPhotos';
-import { rejectPhoto } from 'decorators/photo/decorator.rejectPhoto';
-import { approvePhoto } from 'decorators/photo/decorator.approvePhoto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { toJalaali } from 'jalaali-js';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { FormDataRequest } from 'nestjs-form-data';
 
-@ApiTags('Photos')
 @Controller('photos')
 export class PhotosController {
   constructor(private readonly photoService: PhotosService) {}
   //{Post} upload
   @Post('upload')
-  @UploadPicture()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user')
+  @FormDataRequest()
   async uploadPhoto(
     @Body() createPhotoDto: CreatePhotoDto,
     @Request() req: any,
@@ -53,32 +59,35 @@ export class PhotosController {
   }
   //{GET} my-photos
   @Get('my-photos')
-  @myPhotos()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async getUserPhotos(@Request() req: any) {
     return this.photoService.getUserPhotos(req.user.id);
   }
 
   //{GET} all photos
   @Get()
-  @allPhotos()
   async allApprovedPhoto() {
     return this.photoService.approvedPhoto();
   }
   //{GET} pending
   @Get('pending')
-  @pendingPhotos()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async getPendingPhotos() {
     return this.photoService.findPendingPhotos();
   }
   //{Post} approve with id
   @Post('approve/:id')
-  @approvePhoto()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async approvePhoto(@Param('id') photoId: string) {
     return this.photoService.approvePhoto(photoId);
   }
   //{Post} reject with id
   @Post('reject/:id')
-  @rejectPhoto()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async rejectPhoto(@Param('id') photoId: string) {
     return this.photoService.rejectPhoto(photoId);
   }

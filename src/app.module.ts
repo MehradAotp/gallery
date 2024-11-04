@@ -12,7 +12,6 @@ import { PhotosModule } from './photos/photos.module';
 import { Category, CategorySchema } from './category/category.schema';
 import { Photo, PhotoSchema } from './photos/photos.schema';
 import { CategoryModule } from './category/category.module';
-
 config();
 @Module({
   imports: [

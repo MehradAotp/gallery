@@ -1,8 +1,8 @@
 // status.enum.ts
 export enum StatusEnum {
-  pending = 'pending',
-  approved = 'approved',
-  rejected = 'rejected',
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
 }
 
 // category.dto.ts

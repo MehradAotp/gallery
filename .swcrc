@@ -1,0 +1,10 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decoratorMetadata": true,
+      "legacyDecorator": true // استفاده از این گزینه به جای experimentalDecorators
+    },
+    "target": "es2021"
+  }
+}
