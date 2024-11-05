@@ -9,26 +9,30 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto } from './dto/createCategoryDto';
-import { UpdateCategoryDto } from './dto/updateCategoryDto';
+import { CreateCategoryDto } from './dto/createCategory.dto';
+import { UpdateCategoryDto } from './dto/updateCategory.dto';
 
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('category')
+@ApiBearerAuth()
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   //Post
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  async CreateCategory(@Body() createCategoryDto: CreateCategoryDto) {
+  async CreateCategory(
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<CreateCategoryDto> {
     return this.categoryService.createCategory(createCategoryDto);
   }
   //Get
   @Get()
-  async getAllCategories() {
+  async getAllCategories(): Promise<CreateCategoryDto[]> {
     return this.categoryService.allCategory();
   }
   //Patch
@@ -38,7 +42,7 @@ export class CategoryController {
   async updateCategory(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
+  ): Promise<UpdateCategoryDto> {
     return this.categoryService.updateCategory(id, updateCategoryDto);
   }
   //Delete

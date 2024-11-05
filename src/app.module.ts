@@ -10,7 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { PhotosService } from './photos/photos.service';
 import { PhotosModule } from './photos/photos.module';
 import { Category, CategorySchema } from './category/category.schema';
-import { Photo, PhotoSchema } from './photos/photos.schema';
+import { PhotoDocument, PhotoSchema } from './photos/photos.schema';
 import { CategoryModule } from './category/category.module';
 config();
 @Module({
@@ -22,7 +22,9 @@ config();
     MongooseModule.forFeature([
       { name: Category.name, schema: CategorySchema },
     ]),
-    MongooseModule.forFeature([{ name: Photo.name, schema: PhotoSchema }]),
+    MongooseModule.forFeature([
+      { name: PhotoDocument.name, schema: PhotoSchema },
+    ]),
     AuthModule,
     PhotosModule,
   ],

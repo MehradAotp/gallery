@@ -11,12 +11,10 @@
           "classValidatorShim": true,
           "introspectComments": false,
           "dtoFileNameSuffix": [".dto.ts"],
-          "controllerFileNameSuffix" : [".controller.ts"],
-          "dtoKeyOfComment" : ["description"]
+          "controllerFileNameSuffix": [".controller.ts"],
+          "dtoKeyOfComment": ["description"]
         }
       }
-    ],
-    "builder": "swc",
-    "typeCheck": true
+    ]
   }
 }

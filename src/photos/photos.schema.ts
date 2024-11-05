@@ -2,10 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Category } from 'src/category/category.schema';
 import { User } from 'src/users/users.schema';
-import { StatusEnum } from './dto/photoDto';
+import { StatusEnum } from './dto/photo.dto';
 
 @Schema()
-export class Photo extends Document {
+export class PhotoDocument extends Document {
   @Prop({ required: true })
   filename: string;
   @Prop({ required: true })
@@ -30,4 +30,10 @@ export class Photo extends Document {
   })
   uploadedBy: mongoose.Schema.Types.ObjectId;
 }
-export const PhotoSchema = SchemaFactory.createForClass(Photo);
+export const PhotoSchema = SchemaFactory.createForClass(PhotoDocument);
+
+// export interface PhotoPopulatedDocument
+//   extends Omit<PhotoDocument, 'uploadedBy' | 'categories'> {
+//   uploadedBy: User;
+//   categories: Category[];
+// }

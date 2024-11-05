@@ -1,10 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { HasMimeType, IsFile, MemoryStoredFile } from 'nestjs-form-data';
 
 export class CreatePhotoDto {
-  /**
-   * DTO for creating a photo
-   */
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -14,6 +12,11 @@ export class CreatePhotoDto {
   @IsString()
   description?: string;
 
+  @ApiProperty({
+    description: 'file',
+    type: 'string',
+    format: 'binary',
+  })
   @IsFile()
   @HasMimeType(['image/jpeg', 'image/png'])
   file: MemoryStoredFile;

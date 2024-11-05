@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { config } from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import metadata from './metadata';
 
 config();
 
@@ -18,7 +17,6 @@ async function bootstrap() {
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
-  await SwaggerModule.loadPluginMetadata(metadata);
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

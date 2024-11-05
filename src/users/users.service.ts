@@ -4,7 +4,7 @@ import { User } from './users.schema';
 import { Model } from 'mongoose';
 import { Role } from './role.enum';
 import * as bcrypt from 'bcrypt';
-import { createUserDto } from './dto/createUserDto';
+import { createUserDto } from './dto/createUser.dto';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}

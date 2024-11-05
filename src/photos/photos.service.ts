@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Photo } from './photos.schema';
+import { PhotoDocument } from './photos.schema';
 import { Model } from 'mongoose';
-import { CreatePhotoDto } from './dto/createPhotoDto';
-import { PhotoDto } from './dto/photoDto';
+import { CreatePhotoDto } from './dto/createPhoto.dto';
+import { PhotoDto } from './dto/photo.dto';
 
 @Injectable()
 export class PhotosService {
-  constructor(@InjectModel(Photo.name) private photoModel: Model<Photo>) {}
+  constructor(
+    @InjectModel(PhotoDocument.name) private photoModel: Model<PhotoDocument>,
+  ) {}
 
   async createPhoto(
     createPhotoDto: CreatePhotoDto,
@@ -60,21 +62,24 @@ export class PhotosService {
     return photos.map(this.mapToPhotoDto);
   }
 
-  async approvePhoto(photoId: string): Promise<Photo> {
-    return this.photoModel.findByIdAndUpdate(
+  async approvePhoto(photoId: string): Promise<PhotoDto> {
+    const doc = await this.photoModel.findByIdAndUpdate(
       photoId,
       { status: 'approved' },
       { new: true },
     );
+    return this.mapToPhotoDto(doc);
   }
 
-  async rejectPhoto(photoId: string): Promise<Photo> {
-    return this.photoModel.findByIdAndUpdate(
+  async rejectPhoto(photoId: string): Promise<PhotoDto> {
+    const doc = await this.photoModel.findByIdAndUpdate(
       photoId,
       { status: 'rejected' },
       { new: true },
     );
+    return this.mapToPhotoDto(doc);
   }
+  //photo: PhotoDocument
   private mapToPhotoDto(photo: any): PhotoDto {
     const { _id, filename, title, description, status, uploadedBy } = photo;
     const categories = photo.categories ?? [];
