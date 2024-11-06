@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Category } from 'src/category/category.schema';
-import { User } from 'src/users/users.schema';
 import { StatusEnum } from './dto/photo.dto';
+import { User } from 'src/users/users.schema';
+import mongooseAutopopulate from 'mongoose-autopopulate';
 
 @Schema()
 export class PhotoDocument extends Document {
@@ -13,6 +14,7 @@ export class PhotoDocument extends Document {
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: Category.name }],
     required: true,
+    autopopulate: true,
   })
   categories: Category[];
   @Prop({ required: false })
@@ -27,13 +29,15 @@ export class PhotoDocument extends Document {
     type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
     required: true,
+    autopopulate: true,
   })
-  uploadedBy: mongoose.Schema.Types.ObjectId;
+  uploadedBy: User; //mongoose.Schema.Types.ObjectId to User
 }
-export const PhotoSchema = SchemaFactory.createForClass(PhotoDocument);
 
-// export interface PhotoPopulatedDocument
-//   extends Omit<PhotoDocument, 'uploadedBy' | 'categories'> {
-//   uploadedBy: User;
-//   categories: Category[];
-// }
+export const PhotoSchema = SchemaFactory.createForClass(PhotoDocument);
+PhotoSchema.plugin(mongooseAutopopulate);
+export interface PhotoPopulatedDocument
+  extends Omit<PhotoDocument, 'uploadedBy' | 'categories'> {
+  uploadedBy: User;
+  categories: Category[];
+}

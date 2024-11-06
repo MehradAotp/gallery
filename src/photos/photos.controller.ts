@@ -36,8 +36,6 @@ export class PhotosController {
   ): Promise<PhotoDto> {
     // Save Photo And Change Name.
     // Date format as YYYY-MM-DD(Add Date Shamsi)
-    console.log('File:', createPhotoDto.file);
-
     const jalaaliDate = toJalaali(new Date());
     const dateFormat = `${jalaaliDate.jy}-${String(jalaaliDate.jm).padStart(2, '0')}-${String(jalaaliDate.jd).padStart(2, '0')}`;
     const username = req.user.username;

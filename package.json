@@ -37,6 +37,7 @@
     "jalaali-js": "^1.2.7",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.3",
+    "mongoose-autopopulate": "^1.1.0",
     "nestjs-form-data": "^1.9.91",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

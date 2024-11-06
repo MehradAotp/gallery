@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 import { HasMimeType, IsFile, MemoryStoredFile } from 'nestjs-form-data';
 
 export class CreatePhotoDto {
@@ -7,6 +8,8 @@ export class CreatePhotoDto {
   @IsString()
   title: string;
 
+  @IsArray()
+  @Transform(({ value }) => value.split(','))
   categories: string[];
 
   @IsString()
