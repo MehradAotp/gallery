@@ -1,11 +1,20 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PhotoDocument, PhotoPopulatedDocument } from './photos.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreatePhotoDto } from './dto/createPhoto.dto';
 import { PhotoDto } from './dto/photo.dto';
 import { Category } from 'src/category/category.schema';
 
+interface UserForDisplay {
+  _id: Types.ObjectId;
+  username: string;
+  role: 'admin' | 'user';
+}
 @Injectable()
 export class PhotosService {
   constructor(
@@ -71,6 +80,22 @@ export class PhotosService {
       .exec();
     return this.mapToPhotoDto(doc);
   }
+
+  async displayPhoto(photoId: string, user: UserForDisplay): Promise<PhotoDto> {
+    const photo = await this.photoModel.findById(photoId);
+    if (!photo) {
+      throw new NotFoundException('Photo not found');
+    }
+    const isOwnerOrAdmin =
+      user.role === 'admin' ||
+      (photo.uploadedBy._id as Types.ObjectId).equals(user._id);
+
+    if (!isOwnerOrAdmin && photo.status !== 'approved') {
+      throw new NotFoundException('Photo is not available');
+    }
+    return this.mapToPhotoDto(photo);
+  }
+
   private mapToPhotoDto(photo: PhotoPopulatedDocument): PhotoDto {
     const { _id, filename, title, description, status, uploadedBy } = photo;
     const categories = photo.categories ?? [];

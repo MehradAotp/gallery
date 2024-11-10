@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   UseGuards,
+  Response,
 } from '@nestjs/common';
 import { PhotosService } from './photos.service';
 import { CreatePhotoDto } from './dto/createPhoto.dto';
@@ -94,5 +95,31 @@ export class PhotosController {
   @Roles('admin')
   async rejectPhoto(@Param('id') photoId: string): Promise<PhotoDto> {
     return this.photoService.rejectPhoto(photoId);
+  }
+
+  //{GET} view Photo
+  @Get('view/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'user')
+  async viewPhoto(
+    @Param('id') photoId: string,
+    @Request() req: any,
+    @Response() res: any,
+  ): Promise<void> {
+    const photo = await this.photoService.displayPhoto(photoId, req.user);
+
+    const fileExtension = path.extname(photo.filename).toLowerCase();
+    const mimeTypes = {
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif',
+    };
+    const mimetype = mimeTypes[fileExtension];
+    res.setHeader('Content-Type', mimetype);
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // کش به مدت 1 روز
+    // ارسال فایل عکس
+    const filePath = path.join(process.cwd(), 'uploads', photo.filename);
+    res.sendFile(filePath);
   }
 }
