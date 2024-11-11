@@ -6,6 +6,7 @@ import { PhotoDocument, PhotoSchema } from './photos.schema';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { Category, CategorySchema } from 'src/category/category.schema';
 import { User, UserSchema } from 'src/users/users.schema';
+import { EmailService } from 'src/email/email.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { User, UserSchema } from 'src/users/users.schema';
     NestjsFormDataModule,
   ],
   controllers: [PhotosController],
-  providers: [PhotosService],
+  providers: [PhotosService, EmailService],
 })
 export class PhotosModule {}

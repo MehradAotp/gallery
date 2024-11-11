@@ -9,6 +9,11 @@ export class UsersController {
 
   @Post('register')
   async register(@Body() body: createUserInputDto): Promise<createUserDto> {
-    return this.userService.register(body.username, body.password, Role.USER);
+    return this.userService.register(
+      body.username,
+      body.password,
+      Role.USER,
+      body.email,
+    );
   }
 }

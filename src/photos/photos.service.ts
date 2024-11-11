@@ -9,17 +9,22 @@ import { Model, Types } from 'mongoose';
 import { CreatePhotoDto } from './dto/createPhoto.dto';
 import { PhotoDto } from './dto/photo.dto';
 import { Category } from 'src/category/category.schema';
+import { User } from 'src/users/users.schema';
+import { EmailService } from 'src/email/email.service';
 
 interface UserForDisplay {
   _id: Types.ObjectId;
   username: string;
   role: 'admin' | 'user';
+  email: string;
 }
 @Injectable()
 export class PhotosService {
   constructor(
     @InjectModel(PhotoDocument.name) private photoModel: Model<PhotoDocument>,
     @InjectModel(Category.name) private categoryModel: Model<Category>,
+    @InjectModel(User.name) private userModel: Model<User>,
+    private emailService: EmailService,
   ) {}
 
   async createPhoto(
@@ -71,6 +76,15 @@ export class PhotosService {
     const doc = await this.photoModel
       .findByIdAndUpdate(photoId, { status: 'approved' }, { new: true })
       .exec();
+    const userDoc = await this.userModel.findById(doc.uploadedBy).lean();
+    const user: UserForDisplay = {
+      _id: userDoc._id as Types.ObjectId,
+      username: userDoc.username,
+      role: userDoc.role,
+      email: userDoc.email,
+    };
+    await this.sendNotificationEmail(user, 'approved');
+
     return this.mapToPhotoDto(doc);
   }
 
@@ -78,6 +92,14 @@ export class PhotosService {
     const doc = await this.photoModel
       .findByIdAndUpdate(photoId, { status: 'rejected' }, { new: true })
       .exec();
+    const userDoc = await this.userModel.findById(doc.uploadedBy).lean();
+    const user: UserForDisplay = {
+      _id: userDoc._id as Types.ObjectId,
+      username: userDoc.username,
+      role: userDoc.role,
+      email: userDoc.email,
+    };
+    await this.sendNotificationEmail(user, 'rejected');
     return this.mapToPhotoDto(doc);
   }
 
@@ -96,6 +118,21 @@ export class PhotosService {
     return this.mapToPhotoDto(photo);
   }
 
+  private async sendNotificationEmail(user: UserForDisplay, status: string) {
+    const statusMessage = status === 'approved' ? 'تایید شد' : 'رد شد';
+    try {
+      await this.emailService.sendEmail(
+        user.email,
+        `وضعیت عکس شما به ${statusMessage} تغییر کرد`,
+        `سلام ${user.username}، وضعیت عکس شما به ${statusMessage} تغییر کرده است.`,
+      );
+      console.log(`Email notification sent to ${user.email}.`);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  //change schema to DTO
   private mapToPhotoDto(photo: PhotoPopulatedDocument): PhotoDto {
     const { _id, filename, title, description, status, uploadedBy } = photo;
     const categories = photo.categories ?? [];

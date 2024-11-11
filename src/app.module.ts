@@ -12,6 +12,7 @@ import { PhotosModule } from './photos/photos.module';
 import { Category, CategorySchema } from './category/category.schema';
 import { PhotoDocument, PhotoSchema } from './photos/photos.schema';
 import { CategoryModule } from './category/category.module';
+import { EmailService } from './email/email.service';
 config();
 @Module({
   imports: [
@@ -29,6 +30,6 @@ config();
     PhotosModule,
   ],
   controllers: [AppController, UsersController],
-  providers: [UsersService, PhotosService],
+  providers: [UsersService, PhotosService, EmailService],
 })
 export class AppModule {}

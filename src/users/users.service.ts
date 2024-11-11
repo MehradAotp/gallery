@@ -13,12 +13,14 @@ export class UsersService {
     username: string,
     password: string,
     role: Role = Role.USER,
+    email: string,
   ): Promise<createUserDto> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new this.userModel({
       username,
       password: hashedPassword,
       role,
+      email,
     });
     const savedUser = await newUser.save();
     const result = savedUser.toObject();
@@ -26,6 +28,7 @@ export class UsersService {
       id: result._id.toString(),
       username: result.username,
       role: result.role,
+      email: result.email,
     };
   }
 
