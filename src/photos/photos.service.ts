@@ -10,7 +10,9 @@ import { CreatePhotoDto } from './dto/createPhoto.dto';
 import { PhotoDto } from './dto/photo.dto';
 import { Category } from 'src/category/category.schema';
 import { User } from 'src/users/users.schema';
-import { EmailService } from 'src/email/email.service';
+import { EventBus } from '@nestjs/cqrs';
+import { PhotoApprovedEvent } from 'events/photo-approved.event';
+import { PhotoRejectedEvent } from 'events/photo-rejected.event';
 
 interface UserForDisplay {
   _id: Types.ObjectId;
@@ -24,7 +26,7 @@ export class PhotosService {
     @InjectModel(PhotoDocument.name) private photoModel: Model<PhotoDocument>,
     @InjectModel(Category.name) private categoryModel: Model<Category>,
     @InjectModel(User.name) private userModel: Model<User>,
-    private emailService: EmailService,
+    private eventBus: EventBus,
   ) {}
 
   async createPhoto(
@@ -76,14 +78,17 @@ export class PhotosService {
     const doc = await this.photoModel
       .findByIdAndUpdate(photoId, { status: 'approved' }, { new: true })
       .exec();
-    const userDoc = await this.userModel.findById(doc.uploadedBy).lean();
-    const user: UserForDisplay = {
-      _id: userDoc._id as Types.ObjectId,
-      username: userDoc.username,
-      role: userDoc.role,
-      email: userDoc.email,
-    };
-    await this.sendNotificationEmail(user, 'approved');
+    if (doc && doc.uploadedBy instanceof Types.ObjectId) {
+      this.eventBus.publish(new PhotoApprovedEvent(photoId, doc.uploadedBy));
+    } else if (
+      doc &&
+      typeof doc.uploadedBy === 'object' &&
+      doc.uploadedBy._id
+    ) {
+      this.eventBus.publish(
+        new PhotoApprovedEvent(photoId, doc.uploadedBy._id as Types.ObjectId),
+      );
+    }
 
     return this.mapToPhotoDto(doc);
   }
@@ -92,14 +97,17 @@ export class PhotosService {
     const doc = await this.photoModel
       .findByIdAndUpdate(photoId, { status: 'rejected' }, { new: true })
       .exec();
-    const userDoc = await this.userModel.findById(doc.uploadedBy).lean();
-    const user: UserForDisplay = {
-      _id: userDoc._id as Types.ObjectId,
-      username: userDoc.username,
-      role: userDoc.role,
-      email: userDoc.email,
-    };
-    await this.sendNotificationEmail(user, 'rejected');
+    if (doc && doc.uploadedBy instanceof Types.ObjectId) {
+      this.eventBus.publish(new PhotoRejectedEvent(photoId, doc.uploadedBy));
+    } else if (
+      doc &&
+      typeof doc.uploadedBy === 'object' &&
+      doc.uploadedBy._id
+    ) {
+      this.eventBus.publish(
+        new PhotoRejectedEvent(photoId, doc.uploadedBy._id as Types.ObjectId),
+      );
+    }
     return this.mapToPhotoDto(doc);
   }
 
@@ -116,20 +124,6 @@ export class PhotosService {
       throw new NotFoundException('Photo is not available');
     }
     return this.mapToPhotoDto(photo);
-  }
-
-  private async sendNotificationEmail(user: UserForDisplay, status: string) {
-    const statusMessage = status === 'approved' ? 'تایید شد' : 'رد شد';
-    try {
-      await this.emailService.sendEmail(
-        user.email,
-        `وضعیت عکس شما به ${statusMessage} تغییر کرد`,
-        `سلام ${user.username}، وضعیت عکس شما به ${statusMessage} تغییر کرده است.`,
-      );
-      console.log(`Email notification sent to ${user.email}.`);
-    } catch (error) {
-      console.error('Error sending email:', error);
-    }
   }
 
   //change schema to DTO

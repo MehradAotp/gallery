@@ -13,10 +13,12 @@ import { Category, CategorySchema } from './category/category.schema';
 import { PhotoDocument, PhotoSchema } from './photos/photos.schema';
 import { CategoryModule } from './category/category.module';
 import { EmailService } from './email/email.service';
+import { CqrsModule } from '@nestjs/cqrs';
 config();
 @Module({
   imports: [
     UsersModule,
+    CqrsModule,
     CategoryModule,
     MongooseModule.forRoot(process.env.MONGODB),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
