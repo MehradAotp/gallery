@@ -12,12 +12,9 @@ async function bootstrap() {
     .setTitle('Gallery API')
     .setDescription('API description for Photo Gallery system')
     .setVersion('1.0')
-    .addTag('Users')
-    .addTag('Photos')
-    .addTag('Category')
-    .addTag('Auth')
     .addBearerAuth()
     .build();
+
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
   app.useGlobalPipes(

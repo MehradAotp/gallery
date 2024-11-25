@@ -1,29 +1,40 @@
-import { Body, Controller, Post, Request, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  Get,
+  Param,
+  UseGuards,
+  Response,
+} from '@nestjs/common';
 import { PhotosService } from './photos.service';
-import { CreatePhotoDto } from './dto/createPhotoDto';
-import { ApiTags } from '@nestjs/swagger';
-import { UploadPicture } from 'decorators/photo/decorator.uploadPhotos';
-import { myPhotos } from 'decorators/photo/decorator.myPhotos';
-import { allPhotos } from 'decorators/photo/decorator.allPhotos';
-import { pendingPhotos } from 'decorators/photo/decorator.pendingPhotos';
-import { rejectPhoto } from 'decorators/photo/decorator.rejectPhoto';
-import { approvePhoto } from 'decorators/photo/decorator.approvePhoto';
+import { CreatePhotoDto } from './dto/createPhoto.dto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { toJalaali } from 'jalaali-js';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { FormDataRequest } from 'nestjs-form-data';
+import { PhotoDto } from './dto/photo.dto';
+import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 
-@ApiTags('Photos')
 @Controller('photos')
+@ApiBearerAuth()
 export class PhotosController {
   constructor(private readonly photoService: PhotosService) {}
   //{Post} upload
   @Post('upload')
-  @UploadPicture()
+  @ApiConsumes('multipart/form-data')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user')
+  @FormDataRequest()
   async uploadPhoto(
     @Body() createPhotoDto: CreatePhotoDto,
     @Request() req: any,
-  ) {
+  ): Promise<PhotoDto> {
     // Save Photo And Change Name.
     // Date format as YYYY-MM-DD(Add Date Shamsi)
     const jalaaliDate = toJalaali(new Date());
@@ -53,33 +64,62 @@ export class PhotosController {
   }
   //{GET} my-photos
   @Get('my-photos')
-  @myPhotos()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user')
   async getUserPhotos(@Request() req: any) {
     return this.photoService.getUserPhotos(req.user.id);
   }
 
   //{GET} all photos
   @Get()
-  @allPhotos()
-  async allApprovedPhoto() {
+  async allApprovedPhoto(): Promise<PhotoDto[]> {
     return this.photoService.approvedPhoto();
   }
   //{GET} pending
   @Get('pending')
-  @pendingPhotos()
-  async getPendingPhotos() {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async getPendingPhotos(): Promise<PhotoDto[]> {
     return this.photoService.findPendingPhotos();
   }
   //{Post} approve with id
   @Post('approve/:id')
-  @approvePhoto()
-  async approvePhoto(@Param('id') photoId: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async approvePhoto(@Param('id') photoId: string): Promise<PhotoDto> {
     return this.photoService.approvePhoto(photoId);
   }
   //{Post} reject with id
   @Post('reject/:id')
-  @rejectPhoto()
-  async rejectPhoto(@Param('id') photoId: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async rejectPhoto(@Param('id') photoId: string): Promise<PhotoDto> {
     return this.photoService.rejectPhoto(photoId);
+  }
+
+  //{GET} view Photo
+  @Get('view/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'user')
+  async viewPhoto(
+    @Param('id') photoId: string,
+    @Request() req: any,
+    @Response() res: any,
+  ): Promise<void> {
+    const photo = await this.photoService.displayPhoto(photoId, req.user);
+
+    const fileExtension = path.extname(photo.filename).toLowerCase();
+    const mimeTypes = {
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif',
+    };
+    const mimetype = mimeTypes[fileExtension];
+    res.setHeader('Content-Type', mimetype);
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // کش به مدت 1 روز
+    // ارسال فایل عکس
+    const filePath = path.join(process.cwd(), 'uploads', photo.filename);
+    res.sendFile(filePath);
   }
 }

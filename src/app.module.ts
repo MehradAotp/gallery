@@ -10,24 +10,28 @@ import { AuthModule } from './auth/auth.module';
 import { PhotosService } from './photos/photos.service';
 import { PhotosModule } from './photos/photos.module';
 import { Category, CategorySchema } from './category/category.schema';
-import { Photo, PhotoSchema } from './photos/photos.schema';
+import { PhotoDocument, PhotoSchema } from './photos/photos.schema';
 import { CategoryModule } from './category/category.module';
-
+import { EmailService } from './email/email.service';
+import { CqrsModule } from '@nestjs/cqrs';
 config();
 @Module({
   imports: [
     UsersModule,
+    CqrsModule,
     CategoryModule,
     MongooseModule.forRoot(process.env.MONGODB),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([
       { name: Category.name, schema: CategorySchema },
     ]),
-    MongooseModule.forFeature([{ name: Photo.name, schema: PhotoSchema }]),
+    MongooseModule.forFeature([
+      { name: PhotoDocument.name, schema: PhotoSchema },
+    ]),
     AuthModule,
     PhotosModule,
   ],
   controllers: [AppController, UsersController],
-  providers: [UsersService, PhotosService],
+  providers: [UsersService, PhotosService, EmailService],
 })
 export class AppModule {}
