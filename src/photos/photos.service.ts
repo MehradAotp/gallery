@@ -10,10 +10,7 @@ import { CreatePhotoDto } from './dto/createPhoto.dto';
 import { PhotoDto } from './dto/photo.dto';
 import { Category } from 'src/category/category.schema';
 import { User } from 'src/users/users.schema';
-import { EventBus } from '@nestjs/cqrs';
-import { PhotoApprovedEvent } from 'events/photo-approved.event';
-import { PhotoRejectedEvent } from 'events/photo-rejected.event';
-
+import { EventsService } from 'src/events/events.service';
 interface UserForDisplay {
   _id: Types.ObjectId;
   username: string;
@@ -26,7 +23,7 @@ export class PhotosService {
     @InjectModel(PhotoDocument.name) private photoModel: Model<PhotoDocument>,
     @InjectModel(Category.name) private categoryModel: Model<Category>,
     @InjectModel(User.name) private userModel: Model<User>,
-    private eventBus: EventBus,
+    private readonly eventsService: EventsService,
   ) {}
 
   async createPhoto(
@@ -78,16 +75,17 @@ export class PhotosService {
     const doc = await this.photoModel
       .findByIdAndUpdate(photoId, { status: 'approved' }, { new: true })
       .exec();
-    if (doc && doc.uploadedBy instanceof Types.ObjectId) {
-      this.eventBus.publish(new PhotoApprovedEvent(photoId, doc.uploadedBy));
-    } else if (
-      doc &&
-      typeof doc.uploadedBy === 'object' &&
-      doc.uploadedBy._id
-    ) {
-      this.eventBus.publish(
-        new PhotoApprovedEvent(photoId, doc.uploadedBy._id as Types.ObjectId),
+    if (doc) {
+      const user = doc.uploadedBy as User; // Cast to User
+      const username = user.username; // دریافت نام کاربری
+      const email = user.email; // دریافت ایمیل
+
+      await this.eventsService.publishPhotoApprovedEvent(
+        photoId,
+        username, // ارسال نام کاربری به جای ID
+        email,
       );
+      console.log('Publishing message:', { photoId, username, email });
     }
 
     return this.mapToPhotoDto(doc);
@@ -97,15 +95,15 @@ export class PhotosService {
     const doc = await this.photoModel
       .findByIdAndUpdate(photoId, { status: 'rejected' }, { new: true })
       .exec();
-    if (doc && doc.uploadedBy instanceof Types.ObjectId) {
-      this.eventBus.publish(new PhotoRejectedEvent(photoId, doc.uploadedBy));
-    } else if (
-      doc &&
-      typeof doc.uploadedBy === 'object' &&
-      doc.uploadedBy._id
-    ) {
-      this.eventBus.publish(
-        new PhotoRejectedEvent(photoId, doc.uploadedBy._id as Types.ObjectId),
+    if (doc) {
+      const user = doc.uploadedBy as User; // Cast to User
+      const username = user.username; // دریافت نام کاربری
+      const email = user.email; // دریافت ایمیل
+
+      await this.eventsService.publishPhotoRejectedEvent(
+        photoId,
+        username, // ارسال نام کاربری به جای ID
+        email,
       );
     }
     return this.mapToPhotoDto(doc);

@@ -12,8 +12,9 @@ import { PhotosModule } from './photos/photos.module';
 import { Category, CategorySchema } from './category/category.schema';
 import { PhotoDocument, PhotoSchema } from './photos/photos.schema';
 import { CategoryModule } from './category/category.module';
-import { EmailService } from './email/email.service';
 import { CqrsModule } from '@nestjs/cqrs';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { EventsService } from './events/events.service';
 config();
 @Module({
   imports: [
@@ -30,8 +31,19 @@ config();
     ]),
     AuthModule,
     PhotosModule,
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: 'photo-exchange',
+          type: 'topic',
+        },
+      ],
+      uri: 'amqp://localhost:5672',
+      connectionInitOptions: { wait: true },
+      enableControllerDiscovery: true,
+    }),
   ],
   controllers: [AppController, UsersController],
-  providers: [UsersService, PhotosService, EmailService],
+  providers: [UsersService, PhotosService, EventsService],
 })
 export class AppModule {}
