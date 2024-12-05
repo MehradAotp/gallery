@@ -1,98 +1,101 @@
-## Description
+# Gallery
 
-Working With Api Gallery.
+<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-## Documention
+✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
 
-http://localhost:3000/api
+[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
 
-### create file .env
+## Run tasks
 
-```env
-MONGODB =mongodb://localhost:27017/Gallery
-PORT = 3000
-SECRET_KEY = secret
+To run the dev server for your app, use:
+
+```sh
+npx nx serve Gallery
 ```
 
-### Project setup
+To create a production bundle:
 
-```bash
-$ yarn install
+```sh
+npx nx build Gallery
 ```
 
-## Compile and run the project
+To see all available targets to run for a project, run:
 
-```bash
-# development
-$ yarn start
-
-# watch mode
-$ yarn start:dev
-
-# production mode
-$ yarn start:prod
+```sh
+npx nx show project Gallery
 ```
 
-## Users
+These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
 
-The administrator is unable to register and enters manually!
+[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
-Users can register by entering <b>http://localhost:3000/users/register</b> page(<mark>METHOD = POST</mark>)
+## Add new projects
 
-```json
-{
-    "username" : "ali",
-    "password" : "ahmadi@ali"
-}
+While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+
+Use the plugin's generator to create new projects.
+
+To generate a new application, use:
+
+```sh
+npx nx g @nx/nest:app demo
 ```
 
-For Login http://localhost:3000/auth/login AND <mark>METHOD = POST</mark>
+To generate a new library, use:
 
-```json
-{
-    "username" : "ali",
-    "password" : "ahmadi@ali"
-}
+```sh
+npx nx g @nx/node:lib mylib
 ```
 
-After Login You Get Api For upload Photo, get all photos user and more
+You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
 
-```json
-{
-  "message": "Login successful",
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hc2VyIiwic3ViIjoiNjcxZWZjOTIzNmEzZmQ2ODVmZTY3YWVhIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzAyMDI0ODMsImV4cCI6MTczMDIwOTY4M30.RY4lEz_FGiLEBA8CQXG1Gcjd-iFwhmNl4uF8OyBnvX0"
-}
+[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Set up CI!
+
+### Step 1
+
+To connect to Nx Cloud, run the following command:
+
+```sh
+npx nx connect
 ```
 
-## Authentication
-After logging in, you will get a token. and expire in 2h
-Now you have to put that token in the Authorization tab of the <mark>Bearer Token</mark> type
+Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
 
-### Photos
-The user can upload the photo by entering the page http://localhost:3000/photos/upload and sending the desired information through from-data.
+- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
-<mark>METHOD = POST</mark>
+### Step 2
 
-#### you can get ID Categories From http://localhost:3000/category <br>
- <mark>METHOD = GET</mark>
+Use the following command to configure a CI workflow for your workspace:
 
-Example : 
-
-```json
-{
-  "file":"Type file and upload",
-  "title" : "sun",
-  "description" : "i love sun",
-  "categories" : "671ef49ccc0cc0bb42d3d9be"
-}
+```sh
+npx nx g ci-workflow
 ```
-<br>
-Now , User can see all uploaded photos
-http://localhost:3000/photos/my-photos  <br>
-Method = GET 
 
-###### Also, the user can see all the photos on the site (confirmed photos).<br>
-<mark>METHOD = GET</mark> <br>
-http://localhost:3000/photos 
+[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
+## Install Nx Console
 
+Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+
+[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Useful links
+
+Learn more:
+
+- [Learn more about this workspace setup](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
+- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+And join the Nx community:
+- [Discord](https://go.nx.dev/community)
+- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
+- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
+- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
