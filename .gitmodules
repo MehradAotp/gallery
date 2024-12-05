@@ -1,0 +1,6 @@
+[submodule "apps/api"]
+	path = apps/api
+	url = https://github.com/MehradAotp/gallery
+[submodule "apps/listener"]
+	path = apps/listener
+	url = https://github.com/MehradAotp/listener
