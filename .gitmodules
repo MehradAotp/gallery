@@ -4,3 +4,7 @@
 [submodule "apps/listener"]
 	path = apps/listener
 	url = https://github.com/MehradAotp/listener
+[submodule "apps/gallery"]
+	path = apps/gallery
+	url = https://github.com/MehradAotp/gallery
+	branch = dev

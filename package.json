@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "serve:all": "concurrently \"nx serve api\" \"nx serve listener\""
+    "serve:all": "concurrently \"nx serve gallery\" \"nx serve listener\""
   },
   "private": true,
   "dependencies": {

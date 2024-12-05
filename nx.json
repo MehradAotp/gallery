@@ -1,26 +1,40 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "npmScope": "your-scope",
+  "projects": {
+    "gallery": "apps/gallery",
+    "listener": "apps/listener",
+    "some-sub-repo": "libs/some-sub-repo"
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "test": {
+      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+    }
+  },
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "!{projectRoot}/**/*.spec.ts",
+      "!{projectRoot}/**/*.e2e-spec.ts"
+    ],
     "production": [
       "default",
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/eslint.config.js",
-      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
-      "!{projectRoot}/jest.config.[jt]s",
-      "!{projectRoot}/src/test-setup.[jt]s",
-      "!{projectRoot}/test-setup.[jt]s"
-    ],
-    "sharedGlobals": []
+      "!{projectRoot}/src/test-setup.[jt]s"
+    ]
   },
   "plugins": [
     {
       "plugin": "@nx/webpack/plugin",
       "options": {
         "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview"
+        "serveTargetName": "serve"
       }
     },
     {
@@ -28,17 +42,6 @@
       "options": {
         "targetName": "lint"
       }
-    },
-    {
-      "plugin": "@nx/jest/plugin",
-      "options": {
-        "targetName": "test"
-      },
-      "exclude": [
-        "apps/Gallery-e2e/**/*",
-        "apps/api-e2e/**/*",
-        "apps/listener-e2e/**/*"
-      ]
     }
   ]
 }
